@@ -12,29 +12,59 @@ export function Board(props){
     useEffect(() => {
         socket.on('click', (data) => {
             console.log('Click event received!');
-            const board = data.board;
-            let newBoard = board.map((row)=>row.slice());
-            newBoard[data.message[0]][data.message[1]]=data.shape;
-            setBoard(newBoard);
-            setTurn(data.shape=='X'?1:0); //Replace with function
+            setBoard((prevBoard)=>{
+                return prevBoard.map((x,y)=>{
+                    if(y==data.message[0]){
+                        return x.map((m,n)=>{
+                        if(n==data.message[1]){
+                            return data.shape;
+                        }
+                        else{
+                            return m;
+                        }
+                        })
+                    }
+                    else{
+                        return x
+                    }
+                })
+            });
+            setTurn(data.shape=='X'?1:0); 
         });
     }, []);
     function onClickEvent(indx){
         if(board[indx[0]][indx[1]]!=null)
             return;
-        let newBoard = board.map((row)=>row.slice())
-        let shape="";
+        setBoard((prevBoard)=>{
+                return prevBoard.map((x,y)=>{
+                    if(y==indx[0]){
+                        return x.map((m,n)=>{
+                        if(n==indx[1]){
+                            if(turn==0)
+                                return 'X';
+                            else
+                                return 'O';
+                        }
+                        else{
+                            return m;
+                        }
+                        })
+                    }
+                    else{
+                        return x
+                    }
+                })
+            });
+        let shape = '';
         if(turn==0){
-            newBoard[indx[0]][indx[1]] = 'X';
-            shape='X';
             setTurn(1);
+            shape = 'X';
         }
         else{
-            newBoard[indx[0]][indx[1]] = 'O';
-            shape='O';
             setTurn(0);
+            shape = 'O';
         }
-        setBoard(newBoard);
+        //setBoard(newBoard);
         socket.emit('click', { message: indx,shape:shape,board:board });
     }
     const boxes=[]; 
