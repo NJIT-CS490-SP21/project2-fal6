@@ -16,7 +16,7 @@ export function Board(props){
             let newBoard = board.map((row)=>row.slice());
             newBoard[data.message[0]][data.message[1]]=data.shape;
             setBoard(newBoard);
-            setTurn(data.shape=='X'?1:0);
+            setTurn(data.shape=='X'?1:0); //Replace with function
         });
     }, []);
     function onClickEvent(indx){
