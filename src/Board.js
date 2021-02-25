@@ -65,7 +65,7 @@ export function Board(props){
             shape = 'O';
         }
         //setBoard(newBoard);
-        socket.emit('click', { message: indx,shape:shape,board:board });
+        socket.emit('click', { message: indx,shape:shape,});
     }
     const boxes=[]; 
     for (var i = 0;i<3;i++ ){
