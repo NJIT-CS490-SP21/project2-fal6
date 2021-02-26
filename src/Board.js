@@ -32,6 +32,12 @@ export function Board(props){
             setTurn(data.shape=='X'?1:0); 
         });
     }, []);
+    useEffect(()=>{
+       socket.on('init',(data)=>{
+            setTurn(data.turn)
+            setBoard(data.board)
+        }) 
+    },[])
     function onClickEvent(indx){
         if(board[indx[0]][indx[1]]!=null)
             return;
@@ -64,7 +70,6 @@ export function Board(props){
             setTurn(0);
             shape = 'O';
         }
-        //setBoard(newBoard);
         socket.emit('click', { message: indx,shape:shape,});
     }
     const boxes=[]; 

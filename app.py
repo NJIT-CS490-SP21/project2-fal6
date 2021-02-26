@@ -14,6 +14,9 @@ socketio = SocketIO(
     manage_session=False
 )
 
+board = [[None,None,None] for i in range(3)]
+turn = False
+
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
 def index(filename):
@@ -23,6 +26,8 @@ def index(filename):
 @socketio.on('connect')
 def on_connect():
     print('User connected!')
+    data = {'board':board,'turn':turn}
+    socketio.emit("init",data,) #initializes board on connect
 
 # When a client disconnects from this Socket connection, this function is run
 @socketio.on('disconnect')
@@ -32,7 +37,11 @@ def on_disconnect():
 @socketio.on("click")
 def on_click(data):
     print(str(data))
-    socketio.emit("click",data,bradcast=True,include_self=False)
+    global turn
+    turn = not turn
+    indx=data['message']
+    board[indx[0]][indx[1]]=data['shape']
+    socketio.emit("click",data,broadcast=True,include_self=False)
 
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 socketio.run(
