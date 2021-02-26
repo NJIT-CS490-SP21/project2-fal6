@@ -1,13 +1,16 @@
 import {Board} from './Board.js';
 import io from 'socket.io-client';
 import {useState} from 'react';
+import {Login} from './Login.js';
 
 const socket = io();
 
 function App() {
-  const [logged,setLogIn] = useState(false);
+  const [logged,setLogin] = useState(false);
   return (
-    <Board socket={socket}/>
+    <div>
+      {logged? <Board socket={socket}/> : <Login func={setLogin} socket={socket}/>}
+    </div>
   );
 }
 

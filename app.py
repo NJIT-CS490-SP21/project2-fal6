@@ -34,6 +34,19 @@ def on_connect():
 def on_disconnect():
     print('User disconnected!')
 
+@socketio.on('reset')
+def on_reset():
+    global turn 
+    for i in range(len(board)):
+        board[i] = [None,None,None]
+    turn = 'X'
+    data = {'board':board,'turn':turn}
+    socketio.emit("init",data,)
+
+@socketio.on('login')
+def on_login(data):
+    print(data)
+
 @socketio.on("click")
 def on_click(data):
     print(str(data))

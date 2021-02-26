@@ -34,10 +34,10 @@ export function Board(props){
     }, []);
     useEffect(()=>{
        socket.on('init',(data)=>{
-            setTurn(data.turn)
-            setBoard(data.board)
+            setTurn(data.turn);
+            setBoard(data.board);
         }) 
-    },[])
+    },[]) //Initializes the state of the board
     function onClickEvent(indx){
         if(board[indx[0]][indx[1]]!=null)
             return;
