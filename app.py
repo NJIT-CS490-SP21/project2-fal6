@@ -16,6 +16,7 @@ socketio = SocketIO(
 
 board = [[None,None,None] for i in range(3)]
 turn = False
+users = []
 
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
@@ -45,7 +46,8 @@ def on_reset():
 
 @socketio.on('login')
 def on_login(data):
-    print(data)
+    users.append(data['name'])
+    print(users)
 
 @socketio.on("click")
 def on_click(data):

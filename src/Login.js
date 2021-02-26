@@ -1,10 +1,16 @@
-import React from 'react';
+import {React,useRef} from 'react';
 
 export function Login(props){
     const socket = props.socket;
+    let ref = useRef(null);
     function logIn(name){
         props.func(true);
         socket.emit('login',{name:name})
     }
-    return <button onClick={()=>logIn('Peter')}>Log in</button>
+    return(
+        <div>
+                <input type="text" ref={ref}/>
+                <button onClick={()=>logIn(ref.current.value)}>Log in</button>  
+        </div>
+    );
 }
