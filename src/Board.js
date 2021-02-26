@@ -8,6 +8,7 @@ export function Board(props){
     
     const [board, setBoard] = useState(Array(3).fill(Array(3).fill(null)));
     const [turn,setTurn] = useState(0);
+    const [category,setCategory] = useState("");
     const socket = props.socket;
     useEffect(() => {
         socket.on('click', (data) => {
@@ -38,7 +39,22 @@ export function Board(props){
             setBoard(data.board);
         }) 
     },[]) //Initializes the state of the board
+    useEffect(()=>{
+        socket.on('game',(data)=>{
+            console.log(data.players)
+            if(socket.id in data.players[0]){
+                setCategory(data.players[0][socket.id]);
+            }
+            else if(socket.id in data.players[1]){
+                setCategory(data.players[1][socket.id]);
+            }
+            else{
+                setCategory("Spectator");
+            }
+        })
+    },[])
     function onClickEvent(indx){
+        console.log(socket.id);
         if(board[indx[0]][indx[1]]!=null)
             return;
         setBoard((prevBoard)=>{

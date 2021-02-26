@@ -1,5 +1,5 @@
 import os
-from flask import Flask, send_from_directory, json, session
+from flask import Flask, send_from_directory, json, session,request
 from flask_socketio import SocketIO
 from flask_cors import CORS
 
@@ -16,8 +16,8 @@ socketio = SocketIO(
 
 board = [[None,None,None] for i in range(3)]
 turn = False
-users = []
-
+users = {}
+players = []
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
 def index(filename):
@@ -27,13 +27,18 @@ def index(filename):
 @socketio.on('connect')
 def on_connect():
     print('User connected!')
-    data = {'board':board,'turn':turn}
-    socketio.emit("init",data,) #initializes board on connect
+    
 
 # When a client disconnects from this Socket connection, this function is run
 @socketio.on('disconnect')
 def on_disconnect():
+    global players
+    del users[request.sid]
+    if request.sid in players[0] or request.sid in players[1]:
+        
+        players = []
     print('User disconnected!')
+    print(users)
 
 @socketio.on('reset')
 def on_reset():
@@ -42,12 +47,19 @@ def on_reset():
         board[i] = [None,None,None]
     turn = 'X'
     data = {'board':board,'turn':turn}
-    socketio.emit("init",data,)
+    socketio.emit("init",data,broadcast=True)
 
 @socketio.on('login')
 def on_login(data):
-    users.append(data['name'])
+    users[request.sid]=data["name"]
+    data_send = {'board':board,'turn':turn}
     print(users)
+    if len(players) <2:
+        players.append({request.sid:data["name"]})
+        print(players) 
+    socketio.emit("init",data_send,broadcast=False) #initializes board on connect
+    if len(players)==2:
+        socketio.emit("game",{"players":players})
 
 @socketio.on("click")
 def on_click(data):
