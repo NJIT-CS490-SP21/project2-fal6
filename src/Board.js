@@ -8,7 +8,9 @@ export function Board(props){
     
     const [board, setBoard] = useState(Array(3).fill(Array(3).fill(null)));
     const [turn,setTurn] = useState(0);
-    const [category,setCategory] = useState("");
+    const [players,setPlayers] = useState([]);
+    const [game,setGame] = useState(false);
+    const [player,setPlayer] = useState("");
     const socket = props.socket;
     useEffect(() => {
         socket.on('click', (data) => {
@@ -30,7 +32,7 @@ export function Board(props){
                     }
                 })
             });
-            setTurn(data.shape=='X'?1:0); 
+            setTurn(data.shape==='X'?1:0); 
         });
     }, []);
     useEffect(()=>{
@@ -41,28 +43,28 @@ export function Board(props){
     },[]) //Initializes the state of the board
     useEffect(()=>{
         socket.on('game',(data)=>{
-            console.log(data.players)
+            setPlayers([Object.values(data.players[0])[0], Object.values(data.players[1])[0]]);
+            setGame(true);
             if(socket.id in data.players[0]){
-                setCategory(data.players[0][socket.id]);
+                setPlayer(data.players[0][socket.id]);
             }
             else if(socket.id in data.players[1]){
-                setCategory(data.players[1][socket.id]);
-            }
-            else{
-                setCategory("Spectator");
+                setPlayer(data.players[1][socket.id]);
             }
         })
     },[])
     function onClickEvent(indx){
-        console.log(socket.id);
-        if(board[indx[0]][indx[1]]!=null)
+        console.log(player);
+        console.log(players);
+        console.log(+turn);
+        if(board[indx[0]][indx[1]]!=null || player!=players[+turn])
             return;
         setBoard((prevBoard)=>{
                 return prevBoard.map((x,y)=>{
-                    if(y==indx[0]){
+                    if(y===indx[0]){
                         return x.map((m,n)=>{
-                        if(n==indx[1]){
-                            if(turn==0)
+                        if(n===indx[1]){
+                            if(+turn===0)
                                 return 'X';
                             else
                                 return 'O';
@@ -78,7 +80,7 @@ export function Board(props){
                 })
             });
         let shape = '';
-        if(turn==0){
+        if(+turn===0){
             setTurn(1);
             shape = 'X';
         }
@@ -96,7 +98,7 @@ export function Board(props){
     }
     return(
         <div>
-        <p>Current Player: {turn?'O':'X'}</p>
+        <p>Current Player: {game?players[+turn]:(turn===0?'O':'X')}</p>
             <div className="board">
               {boxes}
             </div>

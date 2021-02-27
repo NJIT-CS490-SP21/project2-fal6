@@ -34,8 +34,7 @@ def on_connect():
 def on_disconnect():
     global players
     del users[request.sid]
-    if request.sid in players[0] or request.sid in players[1]:
-        
+    if len(players)!=0 and (request.sid in players[0] or request.sid in players[1]):
         players = []
     print('User disconnected!')
     print(users)
