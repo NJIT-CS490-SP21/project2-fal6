@@ -12,14 +12,59 @@ export function Board(props){
     const [game,setGame] = useState(false);
     const [player,setPlayer] = useState("");
     const socket = props.socket;
+    
+    function checkWin(shape,indx){
+        const lines = [
+            [0,0],
+            [0,2],
+            [1,1],
+            [2,0],
+            [2,2],
+        ];
+        let diagonal = false;
+        let horizontal = true;
+        let vertical = true;
+        let diagonal_perm = false;
+        console.log(board);
+        if (indx in lines){
+            diagonal = true;
+            diagonal_perm = true;
+        }
+        for(let i = 0;i<3;i++){
+            if(horizontal && board[indx[0]][i] !== shape){ //Checks horizontal
+                console.log("horizontal "+board[indx[0]][i]);
+                console.log([indx[0],i]);
+                horizontal = false;
+            }
+            if(vertical && board[i][indx[1]]!==shape){ //Checks vertical
+                console.log("vertical "+board[i][indx[1]]);
+                console.log([i,indx[1]]);
+                vertical = false;
+            }
+            if(diagonal && board[i][i]!==shape){//Checks diagonal
+                console.log("diagonal "+board[i][i]);
+                console.log([i,i]);
+                diagonal = false;
+            }
+            if(diagonal_perm && board[2-i][i]!==shape){
+                console.log("diagonal_perm "+board[2-i][i]);
+                console.log([2-i,i]);
+                diagonal_perm = false;
+            }
+        }
+        console.log(shape);
+        console.log(diagonal+","+vertical+","+horizontal+","+diagonal_perm);
+        return diagonal || vertical || horizontal||diagonal_perm;
+    }
+    
     useEffect(() => {
         socket.on('click', (data) => {
             console.log('Click event received!');
             setBoard((prevBoard)=>{
                 return prevBoard.map((x,y)=>{
-                    if(y==data.message[0]){
+                    if(y===data.message[0]){
                         return x.map((m,n)=>{
-                        if(n==data.message[1]){
+                        if(n===data.message[1]){
                             return data.shape;
                         }
                         else{
@@ -54,9 +99,6 @@ export function Board(props){
         })
     },[])
     function onClickEvent(indx){
-        console.log(player);
-        console.log(players);
-        console.log(+turn);
         if(board[indx[0]][indx[1]]!=null || player!=players[+turn])
             return;
         setBoard((prevBoard)=>{
@@ -78,7 +120,7 @@ export function Board(props){
                         return x
                     }
                 })
-            });
+            },console.log(checkWin((turn ?'O':'X'),indx)));
         let shape = '';
         if(+turn===0){
             setTurn(1);
@@ -88,7 +130,7 @@ export function Board(props){
             setTurn(0);
             shape = 'O';
         }
-        socket.emit('click', { message: indx,shape:shape,});
+        socket.emit('click', {message: indx,shape:shape,});
     }
     const boxes=[]; 
     for (var i = 0;i<3;i++ ){

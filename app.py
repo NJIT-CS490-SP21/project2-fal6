@@ -18,6 +18,8 @@ board = [[None,None,None] for i in range(3)]
 turn = False
 users = {}
 players = []
+spectators = []
+
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
 def index(filename):
@@ -32,24 +34,27 @@ def on_connect():
 # When a client disconnects from this Socket connection, this function is run
 @socketio.on('disconnect')
 def on_disconnect():
+    '''Clean up when a user disconnects'''
     global players
-    del users[request.sid]
+    del users[request.sid] #Delete the current user
     if len(players)!=0 and (request.sid in players[0] or request.sid in players[1]):
-        players = []
+        players = [] #If the user is a player, remove players
     print('User disconnected!')
     print(users)
 
 @socketio.on('reset')
 def on_reset():
+    '''Resets turn and board'''
     global turn 
     for i in range(len(board)):
         board[i] = [None,None,None]
-    turn = 'X'
+    turn = 0
     data = {'board':board,'turn':turn}
     socketio.emit("init",data,broadcast=True)
 
 @socketio.on('login')
 def on_login(data):
+    '''Log user or spectator in'''
     users[request.sid]=data["name"]
     data_send = {'board':board,'turn':turn}
     print(users)
@@ -60,8 +65,14 @@ def on_login(data):
     if len(players)==2:
         socketio.emit("game",{"players":players})
 
+# @socketio.on('spectator_join')
+# def on_spectator_join(data):
+#     spectators.append(data["spectator"])
+#     socketio.emit()
+
 @socketio.on("click")
 def on_click(data):
+    '''Updates board when a box is clicked'''
     print(str(data))
     global turn
     turn = not turn
