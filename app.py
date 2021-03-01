@@ -21,6 +21,7 @@ players = []
 spectators = []
 valid_ids = []
 game = False
+win = False
 
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
@@ -38,20 +39,36 @@ def on_connect():
 def on_disconnect():
     '''Clean up when a user disconnects'''
     global players
-    del users[request.sid] #Delete the current user
-    if len(players)!=0 and (request.sid in players[0] or request.sid in players[1]):
+    global spectators
+    global game
+    global valid_ids
+    global board
+    global users
+    global win
+    
+
+    if (request.sid in valid_ids):
         players = [] #If the user is a player, remove players
+        spectators=[]
+        game = False
+        win = False
+        valid_ids.pop(valid_ids.index(request.sid))
+        board = [[None,None,None] for i in range(3)]
+        users = {}
     print('User disconnected!')
     print(users)
+    print(valid_ids)
 
 @socketio.on('reset')
 def on_reset():
     '''Resets turn and board'''
     global turn 
+    global win
     for i in range(len(board)):
         board[i] = [None,None,None]
     turn = 0
-    data = {'board':board,'turn':turn}
+    win = False
+    data = {'board':board,'turn':turn,'spectators':spectators,'win':win}
     socketio.emit("init",data,broadcast=True)
 
 @socketio.on('login')
@@ -64,7 +81,7 @@ def on_login(data):
         players.append({request.sid:data["name"]})
         valid_ids.append(request.sid)
         print(players) 
-    socketio.emit("init",{'board':board,'turn':turn,'spectators':spectators},broadcast=False) #initializes board on connect
+    socketio.emit("init",{'board':board,'turn':turn,'spectators':spectators,'win':win},broadcast=False) #initializes board on connect
     if game:
         spectators.append(data["name"])
         socketio.emit("spectator",{"spectators":spectators})
