@@ -19,6 +19,8 @@ turn = False
 users = {}
 players = []
 spectators = []
+valid_ids = []
+game = False
 
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
@@ -55,20 +57,22 @@ def on_reset():
 @socketio.on('login')
 def on_login(data):
     '''Log user or spectator in'''
+    global game
     users[request.sid]=data["name"]
-    data_send = {'board':board,'turn':turn}
     print(users)
     if len(players) <2:
         players.append({request.sid:data["name"]})
+        valid_ids.append(request.sid)
         print(players) 
-    socketio.emit("init",data_send,broadcast=False) #initializes board on connect
+    socketio.emit("init",{'board':board,'turn':turn,'spectators':spectators},broadcast=False) #initializes board on connect
+    if game:
+        spectators.append(data["name"])
+        socketio.emit("spectator",{"spectators":spectators})
     if len(players)==2:
-        socketio.emit("game",{"players":players})
+        socketio.emit("game",{"players":players,"ids":valid_ids})
+        game = True
+    
 
-# @socketio.on('spectator_join')
-# def on_spectator_join(data):
-#     spectators.append(data["spectator"])
-#     socketio.emit()
 
 @socketio.on("click")
 def on_click(data):

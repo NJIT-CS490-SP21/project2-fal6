@@ -10,8 +10,10 @@ export function Board(props){
     const [turn,setTurn] = useState(0);
     const [players,setPlayers] = useState([]);
     const [game,setGame] = useState(false);
-    const [player,setPlayer] = useState("");
+    const [player,setPlayer] = useState({});
     const [win,setWin] = useState(false);
+    const [playerids,setIds] = useState([]);
+    const [spectators,setSpectators] = useState([]);
     const socket = props.socket;
 
     
@@ -26,7 +28,7 @@ export function Board(props){
             [[0,0],[1,1],[2,2]],
             [[2,0],,[1,1],[0,2]],
         ]; //All possible wins
-        for(let i=0;i<3;i++){
+        for(let i=0;i<8;i++){
             const [a,b,c] = lines[i];
             if(board[a[0]][a[1]] && board[a[0]][a[1]] === board[b[0]][b[1]] && board[a[0]][a[1]]===board[c[0]][c[1]])
                 return board[a[0]][a[1]];
@@ -36,7 +38,6 @@ export function Board(props){
     
     useEffect(() => {
         socket.on('click', (data) => {
-            console.log('Click event received!');
             setBoard((prevBoard)=>{
                 return prevBoard.map((x,y)=>{
                     if(y===data.message[0]){
@@ -61,11 +62,13 @@ export function Board(props){
        socket.on('init',(data)=>{
             setTurn(data.turn);
             setBoard(data.board);
+            setSpectators(...spectators,data.spectators);
         }) 
     },[]) //Initializes the state of the board
     useEffect(()=>{
         socket.on('game',(data)=>{
             setPlayers([Object.values(data.players[0])[0], Object.values(data.players[1])[0]]);
+            setIds(data.ids);
             setGame(true);
             if(socket.id in data.players[0]){
                 setPlayer(data.players[0][socket.id]);
@@ -73,6 +76,7 @@ export function Board(props){
             else if(socket.id in data.players[1]){
                 setPlayer(data.players[1][socket.id]);
             }
+
         })
     },[])//Starts a game when two players join
     useEffect(()=>{
@@ -82,9 +86,15 @@ export function Board(props){
         };
     },[board])//Checks if the user wins
     
+    useEffect(()=>{
+        socket.on('spectator',(data)=>{
+            setSpectators(...spectators,data.spectators);
+        })
+    },[])
+
     //Called when the user clicks a box
     function onClickEvent(indx){
-        if(board[indx[0]][indx[1]]!=null || player!=players[+turn]||win)
+        if(board[indx[0]][indx[1]]!=null || socket.id!=playerids[+turn]||win)
             return;
         setBoard((prevBoard)=>{
                 return prevBoard.map((x,y)=>{
@@ -126,14 +136,16 @@ export function Board(props){
     }// Creates all of the board boxes
     return(
         <div>
+        <p>{game?
+            players[0]+" vs "+players[1]:
+            "Be ready"}</p>
         {win?
-        (players[+!turn]+" Wins!!!"):
-            <p>Current Player: {
-                game?players[+turn]:
-                (turn===0?'O':'X')}</p>}
+        (<p>{players[+!turn]+" Wins!!!"}</p>):
+            <p>{game?("Current Player: "+players[+turn]):"Waiting on Player 2..."}</p>}
             <div className="board">
               {boxes}
             </div>
+            <p>{spectators}</p>
         </div>
     );
 }
