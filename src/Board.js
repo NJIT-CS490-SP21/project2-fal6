@@ -155,12 +155,12 @@ export function Board(props){
     return(
         <div>
         {win && <Reset socket={socket}/>}
-        <p>{game?
+        <h1>{game?
             players[0]+" vs "+players[1]:
-            "Be ready"}</p>
+            "Be ready"}</h1>
         {win?
-        (<p>{draw?"Draw":players[+!turn]+" Wins!!!"}</p>):
-            <p>{game?("Current Player: "+players[+turn]):"Waiting on Player 2..."}</p>}
+        (<h2>{draw?"Draw":players[+!turn]+" Wins!!!"}</h2>):
+            <h2>{game?("Current Player: "+players[+turn]):"Waiting on Player 2..."}</h2>}
             <div className="board">
               {boxes}
             </div>
