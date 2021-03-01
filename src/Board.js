@@ -11,51 +11,28 @@ export function Board(props){
     const [players,setPlayers] = useState([]);
     const [game,setGame] = useState(false);
     const [player,setPlayer] = useState("");
+    const [win,setWin] = useState(false);
     const socket = props.socket;
+
     
-    function checkWin(shape,indx){
+    function checkWin(){
         const lines = [
-            [0,0],
-            [0,2],
-            [1,1],
-            [2,0],
-            [2,2],
-        ];
-        let diagonal = false;
-        let horizontal = true;
-        let vertical = true;
-        let diagonal_perm = false;
-        console.log(board);
-        if (indx in lines){
-            diagonal = true;
-            diagonal_perm = true;
+            [[0,0],[0,1],[0,2]],
+            [[1,0],[1,1],[1,2]],
+            [[2,0],[2,1],[2,2]],
+            [[0,0],[1,0],[2,0]],
+            [[0,1],[1,1],[2,1]],
+            [[0,2],[1,2],[2,2]],
+            [[0,0],[1,1],[2,2]],
+            [[2,0],,[1,1],[0,2]],
+        ]; //All possible wins
+        for(let i=0;i<3;i++){
+            const [a,b,c] = lines[i];
+            if(board[a[0]][a[1]] && board[a[0]][a[1]] === board[b[0]][b[1]] && board[a[0]][a[1]]===board[c[0]][c[1]])
+                return board[a[0]][a[1]];
         }
-        for(let i = 0;i<3;i++){
-            if(horizontal && board[indx[0]][i] !== shape){ //Checks horizontal
-                console.log("horizontal "+board[indx[0]][i]);
-                console.log([indx[0],i]);
-                horizontal = false;
-            }
-            if(vertical && board[i][indx[1]]!==shape){ //Checks vertical
-                console.log("vertical "+board[i][indx[1]]);
-                console.log([i,indx[1]]);
-                vertical = false;
-            }
-            if(diagonal && board[i][i]!==shape){//Checks diagonal
-                console.log("diagonal "+board[i][i]);
-                console.log([i,i]);
-                diagonal = false;
-            }
-            if(diagonal_perm && board[2-i][i]!==shape){
-                console.log("diagonal_perm "+board[2-i][i]);
-                console.log([2-i,i]);
-                diagonal_perm = false;
-            }
-        }
-        console.log(shape);
-        console.log(diagonal+","+vertical+","+horizontal+","+diagonal_perm);
-        return diagonal || vertical || horizontal||diagonal_perm;
-    }
+        return null;
+    }//Checks if the player has won
     
     useEffect(() => {
         socket.on('click', (data) => {
@@ -79,7 +56,7 @@ export function Board(props){
             });
             setTurn(data.shape==='X'?1:0); 
         });
-    }, []);
+    }, []);//Updates all client boards when the server sends a click
     useEffect(()=>{
        socket.on('init',(data)=>{
             setTurn(data.turn);
@@ -97,9 +74,17 @@ export function Board(props){
                 setPlayer(data.players[1][socket.id]);
             }
         })
-    },[])
+    },[])//Starts a game when two players join
+    useEffect(()=>{
+        const val = checkWin();
+        if(val!==null){
+            setWin(true);
+        };
+    },[board])//Checks if the user wins
+    
+    //Called when the user clicks a box
     function onClickEvent(indx){
-        if(board[indx[0]][indx[1]]!=null || player!=players[+turn])
+        if(board[indx[0]][indx[1]]!=null || player!=players[+turn]||win)
             return;
         setBoard((prevBoard)=>{
                 return prevBoard.map((x,y)=>{
@@ -120,7 +105,8 @@ export function Board(props){
                         return x
                     }
                 })
-            },console.log(checkWin((turn ?'O':'X'),indx)));
+            }
+        );
         let shape = '';
         if(+turn===0){
             setTurn(1);
@@ -137,10 +123,14 @@ export function Board(props){
         for(var j =0;j<3;j++){
             boxes.push(<Box key={[i,j]} val={board[i][j]} index={[i,j]} func={onClickEvent} />)
         };
-    }
+    }// Creates all of the board boxes
     return(
         <div>
-        <p>Current Player: {game?players[+turn]:(turn===0?'O':'X')}</p>
+        {win?
+        (players[+!turn]+" Wins!!!"):
+            <p>Current Player: {
+                game?players[+turn]:
+                (turn===0?'O':'X')}</p>}
             <div className="board">
               {boxes}
             </div>
