@@ -14,14 +14,13 @@ socketio = SocketIO(
     manage_session=False
 )
 
-board = [[None,None,None] for i in range(3)]
-turn = False
-users = {}
-players = []
-spectators = []
-valid_ids = []
-game = False
-win = False
+board = [[None,None,None] for i in range(3)] #Tic tac toe board
+turn = False #Current player turn (0,X) (1, O)
+players = [] # List of two current players
+spectators = [] # List of spectators
+valid_ids = [] # List of the two player Ids
+game = False # Keeps track of if the game has started
+win = False # Keeps track of if the user has won
 
 @app.route('/', defaults={"filename": "index.html"})
 @app.route('/<path:filename>')
@@ -38,25 +37,18 @@ def on_connect():
 @socketio.on('disconnect')
 def on_disconnect():
     '''Clean up when a user disconnects'''
-    global players
-    global spectators
     global game
     global valid_ids
     global board
-    global users
     global win
-    
-
-    if (request.sid in valid_ids):
-        players = [] #If the user is a player, remove players
-        spectators=[]
+    if (request.sid in valid_ids): #If the user is a player, remove players
+        players.clear() 
+        spectators.clear()
         game = False
         win = False
         valid_ids.pop(valid_ids.index(request.sid))
         board = [[None,None,None] for i in range(3)]
-        users = {}
     print('User disconnected!')
-    print(users)
     print(valid_ids)
 
 @socketio.on('reset')
@@ -75,8 +67,6 @@ def on_reset():
 def on_login(data):
     '''Log user or spectator in'''
     global game
-    users[request.sid]=data["name"]
-    print(users)
     if len(players) <2:
         players.append({request.sid:data["name"]})
         valid_ids.append(request.sid)
