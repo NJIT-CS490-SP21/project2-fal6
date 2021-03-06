@@ -1,25 +1,18 @@
-import logo from './logo.svg';
+import {Board} from './Board.js';
+import io from 'socket.io-client';
+import {useState} from 'react';
+import {Login} from './Login.js';
 import './App.css';
 
+const socket = io();
+
 function App() {
+  const [logged,setLogin] = useState(false);
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      {logged? <Board socket={socket}/> : <Login func={setLogin} socket={socket}/>}
     </div>
   );
 }
 
-export default App
+export default App;
