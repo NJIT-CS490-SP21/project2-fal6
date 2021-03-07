@@ -72,10 +72,10 @@ export function Board(props){
     useEffect(()=>{
        socket.on('init',(data)=>{
             setTurn(data.turn);
+            setDraw(false);
             setBoard(data.board);
             setSpectators(data.spectators);
-            setWin(data.win);
-            setDraw(false);
+            setWin(data.win);  
         }) 
     },[]) //Initializes the state of the board
     useEffect(()=>{
@@ -93,23 +93,26 @@ export function Board(props){
         })
     },[])//Starts a game when two players join
     useEffect(()=>{
-        const val = checkWin();
-        const draw = checkDraw();
-        if(val!==null){
-            setWin(true);
+        if(!win){
+            const val = checkWin();
+            const draw = checkDraw();
+            console.log([val,draw,win]);
+            if(val!==null){
+                setWin(true);
+            }
+            if(draw!==false){
+                setWin(true);
+                setDraw(true);
+            }
         }
-        if(draw!==false){
-            setWin(true);
-            setDraw(true);
-        }
-        if(win===true && draw===true){
-            console.log(board);
-            console.log(players);
-        }
-        else if (win){
-            console.log(playerids);
-            console.log("Worked");
-        }
+        // if(win===true && draw===true){
+        //     console.log(board);
+        //     console.log(players);
+        // }
+        // else if (win){
+        //     console.log(playerids);
+        //     console.log("Worked");
+        // }
     },[board])//Checks if the user wins
     
     useEffect(()=>{
