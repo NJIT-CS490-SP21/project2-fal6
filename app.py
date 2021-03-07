@@ -5,10 +5,17 @@ from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv,find_dotenv
 
+load_dotenv(find_dotenv())
+
 app = Flask(__name__, static_folder='./build/static')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+db = SQLAlchemy(app)
+import models
+
 
 cors = CORS(app, resources={r"/*": {"origins": "*"}})
-
 socketio = SocketIO(
     app,
     cors_allowed_origins="*",
@@ -71,6 +78,13 @@ def on_reset():
 def on_login(data):
     '''Log user or spectator in'''
     global game
+    if(db.session.query(models.Player).filter_by(username=data["name"]).first() is not None):
+        print("The user exists")
+    else:
+        new_user=models.Player(username=data["name"],points=100)
+        db.session.add(new_user)
+        db.session.commit()
+        print(models.Player.query.all())
     if len(players) <2:
         players.append({request.sid:data["name"]})
         valid_ids.append(request.sid)
@@ -97,12 +111,22 @@ def on_click(data):
 
 @socketio.on("win")
 def on_win(data):
-    print(data)
-    print(players[not turn])
+    user=db.session.query(models.Player).filter_by(
+        username=players[data["winner"]][valid_ids[data["winner"]]]).first()
+    print(user)
+    print(user.points)
+    user.points+=1
+    user2=db.session.query(models.Player).filter_by(
+        username=players[not data["winner"]][valid_ids[not data["winner"]]]).first()
+    print(user2)
+    print(user2.points)
+    user2.points-=1
+    db.session.commit()
 
 # Note that we don't call app.run anymore. We call socketio.run with app arg
-socketio.run(
-    app,
-    host=os.getenv('IP', '0.0.0.0'),
-    port=8081 if os.getenv('C9_PORT') else int(os.getenv('PORT', 8081)),
-)
+if __name__=="__main__":
+    socketio.run(
+        app,
+        host=os.getenv('IP', '0.0.0.0'),
+        port=8081 if os.getenv('C9_PORT') else int(os.getenv('PORT', 8081)),
+    )
