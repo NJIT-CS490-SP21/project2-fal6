@@ -7,16 +7,16 @@ import {Reset} from './Reset.js';
 
 export function Board(props){
     
-    const [board, setBoard] = useState(Array(3).fill(Array(3).fill(null)));
-    const [turn,setTurn] = useState(0);
-    const [players,setPlayers] = useState([]);
-    const [game,setGame] = useState(false);
-    const [player,setPlayer] = useState({});
-    const [win,setWin] = useState(false);
-    const [playerids,setIds] = useState([]);
-    const [spectators,setSpectators] = useState([]);
-    const socket = props.socket;
-    const [draw,setDraw] = useState(false);
+    const [board, setBoard] = useState(Array(3).fill(Array(3).fill(null))); //Tic tac toe board
+    const [turn,setTurn] = useState(0); // current player turn (0,X) (1,O)
+    const [players,setPlayers] = useState([]); // Name of two current players
+    const [game,setGame] = useState(false);  // Keeps track of if game has started
+    const [player,setPlayer] = useState({}); // Name of player
+    const [win,setWin] = useState(false); // Keeps track of if game has ended or not
+    const [playerids,setIds] = useState([]); // Keeps track of the id of the two active players
+    const [spectators,setSpectators] = useState([]); // Keeps track of current list of spectators
+    const socket = props.socket; // web socket
+    const [draw,setDraw] = useState(false); // Keeps track of if there was a draw or not
 
     
     function checkWin(){
@@ -46,7 +46,7 @@ export function Board(props){
             }
         }
         return true;
-    }
+    }//Checks if there is a draw
     useEffect(() => {
         socket.on('click', (data) => {
             setBoard((prevBoard)=>{
@@ -102,13 +102,14 @@ export function Board(props){
             setWin(true);
             setDraw(true);
         }
+        console.log(val);
     },[board])//Checks if the user wins
     
     useEffect(()=>{
         socket.on('spectator',(data)=>{
             setSpectators(data.spectators);
         })
-    },[])
+    },[])//Adds a spectator
 
     //Called when the user clicks a box
     function onClickEvent(indx){
@@ -154,7 +155,7 @@ export function Board(props){
     }// Creates all of the board boxes
     return(
         <div>
-        {win && <Reset socket={socket}/>}
+        {win && <Reset socket={socket} valid={playerids}/>}
         <h1>{game?
             players[0]+" vs "+players[1]:
             "Be ready"}</h1>
