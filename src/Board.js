@@ -97,12 +97,19 @@ export function Board(props){
         const draw = checkDraw();
         if(val!==null){
             setWin(true);
-        };
+        }
         if(draw!==false){
             setWin(true);
             setDraw(true);
         }
-        console.log(val);
+        if(win===true && draw===true){
+            console.log(board);
+            console.log(players);
+        }
+        else if (win){
+            console.log(playerids);
+            console.log("Worked");
+        }
     },[board])//Checks if the user wins
     
     useEffect(()=>{

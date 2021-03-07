@@ -61,7 +61,7 @@ def on_reset():
     turn = 0
     win = False
     data = {'board':board,'turn':turn,'spectators':spectators,'win':win}
-    socketio.emit("init",data,broadcast=True)
+    socketio.emit("init",data,broadcast=True,include_self=True)
 
 @socketio.on('login')
 def on_login(data):
