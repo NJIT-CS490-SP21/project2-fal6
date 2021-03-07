@@ -43,11 +43,13 @@ def on_disconnect():
     global valid_ids
     global board
     global win
+    global turn
     if (request.sid in valid_ids): #If the user is a player, remove players
         players.clear() 
         spectators.clear()
         game = False
         win = False
+        turn = False
         valid_ids.pop(valid_ids.index(request.sid))
         board = [[None,None,None] for i in range(3)]
     print('User disconnected!')
@@ -92,6 +94,11 @@ def on_click(data):
     indx=data['message']
     board[indx[0]][indx[1]]=data['shape']
     socketio.emit("click",data,broadcast=True,include_self=False)
+
+@socketio.on("win")
+def on_win(data):
+    print(data)
+    print(players[not turn])
 
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 socketio.run(

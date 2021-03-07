@@ -72,10 +72,10 @@ export function Board(props){
     useEffect(()=>{
        socket.on('init',(data)=>{
             setTurn(data.turn);
+            setWin(data.win);
             setDraw(false);
             setBoard(data.board);
             setSpectators(data.spectators);
-            setWin(data.win);  
         }) 
     },[]) //Initializes the state of the board
     useEffect(()=>{
@@ -96,23 +96,18 @@ export function Board(props){
         if(!win){
             const val = checkWin();
             const draw = checkDraw();
-            console.log([val,draw,win]);
             if(val!==null){
                 setWin(true);
+                if(socket.id ===playerids[val==='X'?0:1]){
+                    socket.emit("win",{'val':val});
+                }
             }
             if(draw!==false){
                 setWin(true);
                 setDraw(true);
+                console.log(players[!turn]);
             }
         }
-        // if(win===true && draw===true){
-        //     console.log(board);
-        //     console.log(players);
-        // }
-        // else if (win){
-        //     console.log(playerids);
-        //     console.log("Worked");
-        // }
     },[board])//Checks if the user wins
     
     useEffect(()=>{
