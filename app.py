@@ -1,6 +1,6 @@
 import os
 from flask import Flask, send_from_directory, json, session,request
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO,emit
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv,find_dotenv
@@ -126,8 +126,7 @@ def on_leaderboard():
     leaderboard = list(
         map(lambda person:[person.username,person.points],
         leaderboard))
-    socketio.emit("leaderboard",
-    {'leaderboard':leaderboard},broadcast=False,)
+    emit("leaderboard",{'leaderboard':leaderboard})
 
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 if __name__=="__main__":

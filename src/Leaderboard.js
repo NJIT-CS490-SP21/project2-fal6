@@ -8,7 +8,8 @@ export function Leaderboard(props){
     function displayBoard(leaderboard){
         console.log('here');
         if(!showleadboard){
-            const new_board = leaderboard.map((item)=><li>{item[0]} {item[1]}</li>)
+            const new_board = leaderboard.map(
+                (item)=><li key={item[0]}>{item[0]} {item[1]}</li>);
             setLeaderboard(new_board);
         }
         setShowLeaderboard((prev)=>!prev);
