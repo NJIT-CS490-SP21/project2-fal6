@@ -76,7 +76,6 @@ def on_reset(data):
     data = {
         'board':board,'turn':turn,
         'spectators':spectators,'win':win,
-        'name' : data['name']
     }
     socketio.emit("init",data,broadcast=True,include_self=True)
 
@@ -98,7 +97,6 @@ def on_login(data):
     send_data = {
         'board':board,'turn':turn,
         'spectators':spectators,'win':win,
-        'name':data["name"]
     }
     emit("init",send_data) #initializes board on connect
     users[request.sid] = data["name"]

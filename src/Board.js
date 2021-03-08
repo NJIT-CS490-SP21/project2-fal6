@@ -76,7 +76,6 @@ export function Board(props){
             setDraw(false);
             setBoard(data.board);
             setSpectators(data.spectators);
-            console.log(data.name);
         }) 
     },[]) //Initializes the state of the board
     useEffect(()=>{

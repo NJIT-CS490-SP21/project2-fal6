@@ -4,7 +4,7 @@ export function Reset(props){
     const socket = props.socket;
     function reset(){
         if(props.valid.includes(socket.id))
-            socket.emit('reset',{'name':props.name});
+            socket.emit('reset');
     }
     return(
         <div>
