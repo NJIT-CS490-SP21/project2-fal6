@@ -12,7 +12,6 @@ export function Board(props){
     const [turn,setTurn] = useState(0); // current player turn (0,X) (1,O)
     const [players,setPlayers] = useState([]); // Name of two current players
     const [game,setGame] = useState(false);  // Keeps track of if game has started
-    const [player,setPlayer] = useState({}); // Name of player
     const [win,setWin] = useState(false); // Keeps track of if game has ended or not
     const [playerids,setIds] = useState([]); // Keeps track of the id of the two active players
     const [spectators,setSpectators] = useState([]); // Keeps track of current list of spectators
@@ -77,6 +76,7 @@ export function Board(props){
             setDraw(false);
             setBoard(data.board);
             setSpectators(data.spectators);
+            console.log(data.name);
         }) 
     },[]) //Initializes the state of the board
     useEffect(()=>{
@@ -84,12 +84,12 @@ export function Board(props){
             setPlayers([Object.values(data.players[0])[0], Object.values(data.players[1])[0]]);
             setIds(data.ids);
             setGame(true);
-            if(socket.id in data.players[0]){
-                setPlayer(data.players[0][socket.id]);
-            }
-            else if(socket.id in data.players[1]){
-                setPlayer(data.players[1][socket.id]);
-            }
+            // if(socket.id in data.players[0]){
+            //     setPlayer(data.players[0][socket.id]);
+            // }
+            // else if(socket.id in data.players[1]){
+            //     setPlayer(data.players[1][socket.id]);
+            // }
 
         })
     },[])//Starts a game when two players join

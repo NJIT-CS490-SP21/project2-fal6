@@ -26,8 +26,9 @@ socketio = SocketIO(
 board = [[None,None,None] for i in range(3)] #Tic tac toe board
 turn = False #Current player turn (0,X) (1, O)
 players = [] # List of two current players
-spectators = [] # List of spectators
+spectators = {} # List of spectators
 valid_ids = [] # List of the two player Ids
+users = {}
 game = False # Keeps track of if the game has started
 win = False # Keeps track of if the user has won
 
@@ -54,6 +55,7 @@ def on_disconnect():
     if (request.sid in valid_ids): #If the user is a player, remove players
         players.clear() 
         spectators.clear()
+        users.clear()
         game = False
         win = False
         turn = False
@@ -63,7 +65,7 @@ def on_disconnect():
     print(valid_ids)
 
 @socketio.on('reset')
-def on_reset():
+def on_reset(data):
     '''Resets turn and board'''
     global turn 
     global win
@@ -71,7 +73,11 @@ def on_reset():
         board[i] = [None,None,None]
     turn = 0
     win = False
-    data = {'board':board,'turn':turn,'spectators':spectators,'win':win}
+    data = {
+        'board':board,'turn':turn,
+        'spectators':spectators,'win':win,
+        'name' : data['name']
+    }
     socketio.emit("init",data,broadcast=True,include_self=True)
 
 @socketio.on('login')
@@ -88,11 +94,18 @@ def on_login(data):
     if len(players) <2:
         players.append({request.sid:data["name"]})
         valid_ids.append(request.sid)
-        print(players) 
-    socketio.emit("init",{'board':board,'turn':turn,'spectators':spectators,'win':win},broadcast=False) #initializes board on connect
+        print(players)
+    send_data = {
+        'board':board,'turn':turn,
+        'spectators':spectators,'win':win,
+        'name':data["name"]
+    }
+    emit("init",send_data) #initializes board on connect
+    users[request.sid] = data["name"]
     if game:
-        spectators.append(data["name"])
-        socketio.emit("spectator",{"spectators":spectators})
+        spectators[request.sid]=data["name"]
+        socketio.emit("spectator",{
+            "spectators":list(spectators.values())})
     if len(players)==2:
         socketio.emit("game",{"players":players,"ids":valid_ids})
         game = True
@@ -126,7 +139,9 @@ def on_leaderboard():
     leaderboard = list(
         map(lambda person:[person.username,person.points],
         leaderboard))
-    emit("leaderboard",{'leaderboard':leaderboard})
+    leaderboard.sort(key=lambda leaderboard:leaderboard[1],reverse=True)
+    
+    emit("leaderboard",{'leaderboard':leaderboard,'name':users[request.sid]})
 
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 if __name__=="__main__":
