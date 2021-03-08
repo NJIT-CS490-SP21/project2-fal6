@@ -105,7 +105,6 @@ export function Board(props){
             if(draw!==false){
                 setWin(true);
                 setDraw(true);
-                console.log(players[!turn]);
             }
         }
     },[board])//Checks if the user wins

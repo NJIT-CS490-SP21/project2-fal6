@@ -65,7 +65,7 @@ def on_disconnect():
     print(valid_ids)
 
 @socketio.on('reset')
-def on_reset(data):
+def on_reset():
     '''Resets turn and board'''
     global turn 
     global win
