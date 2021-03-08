@@ -1,5 +1,5 @@
 import {React, useState,useEffect} from 'react';
-
+import './Table.css';
 export function Leaderboard(props){
     const socket = props.socket;
     const [showleadboard,setShowLeaderboard] = useState(false);
@@ -30,7 +30,7 @@ export function Leaderboard(props){
             <button onClick={()=>socket.emit("leaderboard")}>{showleadboard?'Hide':'Leaderboard'}</button>
             {showleadboard && 
             (<div><h1>Leaderboard:</h1>
-                <table>
+                <table className='table'>
                     <tbody>
                         <tr>
                             <th>Name</th>

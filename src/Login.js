@@ -1,4 +1,5 @@
 import {React,useRef} from 'react';
+import './Login.css';
 
 export function Login(props){
     const socket = props.socket;
@@ -9,6 +10,7 @@ export function Login(props){
     }
     return(
         <div>
+                <h1>Enter your username:</h1>
                 <input type="text" ref={ref}/>
                 <button onClick={()=>logIn(ref.current.value)}>Log in</button>  
         </div>
