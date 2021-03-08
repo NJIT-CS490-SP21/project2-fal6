@@ -99,7 +99,7 @@ export function Board(props){
             if(val!==null){
                 setWin(true);
                 if(socket.id ===playerids[val==='X'?0:1]){
-                    socket.emit("win",{'winner':'X'?0:1});
+                    socket.emit("win",{'winner':val==='X'?0:1});
                 }
             }
             if(draw!==false){
