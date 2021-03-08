@@ -113,13 +113,9 @@ def on_click(data):
 def on_win(data):
     user=db.session.query(models.Player).filter_by(
         username=players[data["winner"]][valid_ids[data["winner"]]]).first()
-    print(user)
-    print(user.points)
     user.points+=1
     user2=db.session.query(models.Player).filter_by(
         username=players[not data["winner"]][valid_ids[not data["winner"]]]).first()
-    print(user2)
-    print(user2.points)
     user2.points-=1
     db.session.commit()
 

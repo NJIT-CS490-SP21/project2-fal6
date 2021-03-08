@@ -4,6 +4,7 @@ import {Box} from './Boxes.js';
 import { useState, useEffect} from 'react';
 import {Spectator} from './Spectator.js';
 import {Reset} from './Reset.js';
+import {Leaderboard} from './Leaderboard.js';
 
 export function Board(props){
     
@@ -17,7 +18,7 @@ export function Board(props){
     const [spectators,setSpectators] = useState([]); // Keeps track of current list of spectators
     const socket = props.socket; // web socket
     const [draw,setDraw] = useState(false); // Keeps track of if there was a draw or not
-
+    
     
     function checkWin(){
         const lines = [
@@ -171,6 +172,7 @@ export function Board(props){
               {boxes}
             </div>
             <Spectator spectators={spectators} />
+            <Leaderboard/>
         </div>
     );
 }
