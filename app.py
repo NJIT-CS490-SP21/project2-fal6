@@ -119,6 +119,16 @@ def on_win(data):
     user2.points-=1
     db.session.commit()
 
+@socketio.on("leaderboard")
+def on_leaderboard():
+    print(request.sid)
+    leaderboard = models.Player.query.all()
+    leaderboard = list(
+        map(lambda person:[person.username,person.points],
+        leaderboard))
+    socketio.emit("leaderboard",
+    {'leaderboard':leaderboard},broadcast=False,)
+
 # Note that we don't call app.run anymore. We call socketio.run with app arg
 if __name__=="__main__":
     socketio.run(

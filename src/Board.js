@@ -172,7 +172,7 @@ export function Board(props){
               {boxes}
             </div>
             <Spectator spectators={spectators} />
-            <Leaderboard/>
+            <Leaderboard socket={socket}/>
         </div>
     );
 }
