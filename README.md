@@ -1,4 +1,4 @@
-# Flask and create-react-app
+# Tic-Tac-Toe
 
 ## Requirements
 1. `npm install`
