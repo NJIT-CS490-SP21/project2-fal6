@@ -1,3 +1,7 @@
+'''
+Backend using flask and websockets in order to update TicTacToe boards in real time.
+FlaskSQLAlchemy is used to mange user data
+'''
 import os
 from flask import Flask, send_from_directory, json, request
 from flask_socketio import SocketIO, emit
