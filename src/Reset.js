@@ -1,13 +1,20 @@
-import { React } from "react";
+import { React } from 'react';
+import PropTypes from 'prop-types';
 
-export function Reset(props) {
-  const socket = props.socket;
+function Reset(props) {
+  const { socket } = props;
   function reset() {
-    if (props.valid.includes(socket.id)) socket.emit("reset");
+    if (props.valid.includes(socket.id)) socket.emit('reset');
   }
   return (
     <div>
-      <button onClick={() => reset()}>Play Again</button>
+      <button type="button" onClick={() => reset()}>Play Again</button>
     </div>
   );
 }
+Reset.propTypes = {
+  socket: PropTypes.func.isRequired,
+  valid: PropTypes.func.isRequired,
+};
+
+export default Reset;

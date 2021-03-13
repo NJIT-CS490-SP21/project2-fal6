@@ -1,8 +1,8 @@
-import { Board } from "./Board.js";
-import io from "socket.io-client";
-import { useState } from "react";
-import { Login } from "./Login.js";
-import "./App.css";
+import io from 'socket.io-client';
+import React, { useState } from 'react';
+import Board from './Board';
+import Login from './Login';
+import './App.css';
 
 const socket = io();
 
