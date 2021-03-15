@@ -70,15 +70,19 @@ def on_disconnect():
     print(VALID_IDS)
 
 
+def reset(board):
+    '''Restarts turn, board and win variables'''
+    global TURN
+    global WIN
+    for count, _ in enumerate(board):
+        board[count] = [None, None, None]
+    TURN = 0
+    WIN = False
+    return board, TURN, WIN
 @SOCKETIO.on('reset')
 def on_reset():
     '''Resets turn and board'''
-    global TURN
-    global WIN
-    for count, _ in enumerate(BOARD):
-        BOARD[count] = [None, None, None]
-    TURN = 0
-    WIN = False
+    reset(BOARD)
     data = {
         'board': BOARD,
         'turn': TURN,
@@ -120,15 +124,19 @@ def on_login(data):
         SOCKETIO.emit("game", {"players": PLAYERS, "ids": VALID_IDS})
         GAME = True
 
+def click(board, data):
+    '''Updates global board variable to new board'''
+    indx = data['message']
+    global TURN
+    TURN = not TURN
+    board[indx[0]][indx[1]] = data['shape']
+    return board, TURN
 
 @SOCKETIO.on("click")
 def on_click(data):
     '''Updates board when a box is clicked'''
     print(str(data))
-    global TURN
-    TURN = not TURN
-    indx = data['message']
-    BOARD[indx[0]][indx[1]] = data['shape']
+    click(BOARD, data)
     SOCKETIO.emit("click", data, broadcast=True, include_self=False)
 
 
