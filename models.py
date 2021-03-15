@@ -1,17 +1,17 @@
 '''
 Stores Model for our database
 '''
-from app import db
+from app import DB
 
 
-class Player(db.Model):
+class Player(DB.Model):
     '''Stores username and points for a player'''
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(80), unique=True, nullable=False)
-    points = db.Column(db.Integer, nullable=False)
+    id = DB.Column(DB.Integer, primary_key=True)
+    username = DB.Column(DB.String(80), unique=True, nullable=False)
+    points = DB.Column(DB.Integer, nullable=False)
 
     def __repr__(self):
         return '<Player %r>' % self.username
 
 
-db.create_all()
+DB.create_all()

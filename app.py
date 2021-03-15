@@ -11,15 +11,15 @@ from dotenv import load_dotenv, find_dotenv
 
 load_dotenv(find_dotenv())
 
-app = Flask(__name__, static_folder='./build/static')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+APP = Flask(__name__, static_folder='./build/static')
+APP.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
+APP.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-db = SQLAlchemy(app)
+DB = SQLAlchemy(APP)
 import models
 
-cors = CORS(app, resources={r"/*": {"origins": "*"}})
-socketio = SocketIO(app,
+CORS_VAR = CORS(APP, resources={r"/*": {"origins": "*"}})
+SOCKETIO = SocketIO(APP,
                     cors_allowed_origins="*",
                     json=json,
                     manage_session=False)
@@ -34,22 +34,22 @@ GAME = False  # Keeps track of if the game has started
 WIN = False  # Keeps track of if the user has won
 
 
-@app.route('/', defaults={"filename": "index.html"})
-@app.route('/<path:filename>')
+@APP.route('/', defaults={"filename": "index.html"})
+@APP.route('/<path:filename>')
 def index(filename):
     '''index'''
     return send_from_directory('./build', filename)
 
 
 # When a client connects from this Socket connection, this function is run
-@socketio.on('connect')
+@SOCKETIO.on('connect')
 def on_connect():
     '''When a user connects'''
     print('User connected!')
 
 
 # When a client disconnects from this Socket connection, this function is run
-@socketio.on('disconnect')
+@SOCKETIO.on('disconnect')
 def on_disconnect():
     '''Clean up when a user disconnects'''
     global GAME
@@ -70,12 +70,12 @@ def on_disconnect():
     print(VALID_IDS)
 
 
-@socketio.on('reset')
+@SOCKETIO.on('reset')
 def on_reset():
     '''Resets turn and board'''
     global TURN
     global WIN
-    for count,_ in enumerate(BOARD):
+    for count, _ in enumerate(BOARD):
         BOARD[count] = [None, None, None]
     TURN = 0
     WIN = False
@@ -85,21 +85,21 @@ def on_reset():
         'spectators': SPECTATORS,
         'win': WIN,
     }
-    socketio.emit("init", data, broadcast=True, include_self=True)
+    SOCKETIO.emit("init", data, broadcast=True, include_self=True)
 
 
-@socketio.on('login')
+@SOCKETIO.on('login')
 def on_login(data):
     '''Log user or spectator in'''
     global GAME
-    if (db.session.query(
+    if (DB.session.query(
             models.Player).filter_by(username=data["name"]).first()
             is not None):
         print("The user exists")
     else:
         new_user = models.Player(username=data["name"], points=100)
-        db.session.add(new_user)
-        db.session.commit()
+        DB.session.add(new_user)
+        DB.session.commit()
         print(models.Player.query.all())
     if len(PLAYERS) < 2:
         PLAYERS.append({request.sid: data["name"]})
@@ -115,13 +115,13 @@ def on_login(data):
     USERS[request.sid] = data["name"]
     if GAME:
         SPECTATORS[request.sid] = data["name"]
-        socketio.emit("spectator", {"spectators": list(SPECTATORS.values())})
+        SOCKETIO.emit("spectator", {"spectators": list(SPECTATORS.values())})
     if len(PLAYERS) == 2:
-        socketio.emit("game", {"players": PLAYERS, "ids": VALID_IDS})
+        SOCKETIO.emit("game", {"players": PLAYERS, "ids": VALID_IDS})
         GAME = True
 
 
-@socketio.on("click")
+@SOCKETIO.on("click")
 def on_click(data):
     '''Updates board when a box is clicked'''
     print(str(data))
@@ -129,23 +129,23 @@ def on_click(data):
     TURN = not TURN
     indx = data['message']
     BOARD[indx[0]][indx[1]] = data['shape']
-    socketio.emit("click", data, broadcast=True, include_self=False)
+    SOCKETIO.emit("click", data, broadcast=True, include_self=False)
 
 
-@socketio.on("win")
+@SOCKETIO.on("win")
 def on_win(data):
     '''Update database when user wins'''
-    user = db.session.query(models.Player).filter_by(
+    user = DB.session.query(models.Player).filter_by(
         username=PLAYERS[data["winner"]][VALID_IDS[data["winner"]]]).first()
     user.points += 1
-    user2 = db.session.query(
+    user2 = DB.session.query(
         models.Player).filter_by(username=PLAYERS[not data["winner"]][
             VALID_IDS[not data["winner"]]]).first()
     user2.points -= 1
-    db.session.commit()
+    DB.session.commit()
 
 
-@socketio.on("leaderboard")
+@SOCKETIO.on("leaderboard")
 def on_leaderboard():
     '''Returns a list of users and scores sorted from first to last'''
     print(request.sid)
@@ -160,10 +160,10 @@ def on_leaderboard():
     })
 
 
-# Note that we don't call app.run anymore. We call socketio.run with app arg
+# Note that we don't call APP.run anymore. We call socketio.run with APP arg
 if __name__ == "__main__":
-    socketio.run(
-        app,
+    SOCKETIO.run(
+        APP,
         host=os.getenv('IP', '0.0.0.0'),
         port=8081 if os.getenv('C9_PORT') else int(os.getenv('PORT', 8081)),
     )
