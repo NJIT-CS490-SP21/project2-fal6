@@ -158,6 +158,7 @@ def on_win(data):
 
 
 def leader_board():
+    '''Returns sorted list of users'''
     leaderboard = models.Player.query.all()
     leaderboard = list(
         map(lambda person: [person.username, person.points], leaderboard))
