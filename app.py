@@ -92,6 +92,13 @@ def on_reset():
     SOCKETIO.emit("init", data, broadcast=True, include_self=True)
 
 
+def add_user(username):
+    '''Adds a new user to the database'''
+    new_user = models.Player(username=username, points=100)
+    DB.session.add(new_user)
+    DB.session.commit()
+    return [i.username for i in models.Player.query.all()]
+
 @SOCKETIO.on('login')
 def on_login(data):
     '''Log user or spectator in'''
@@ -101,10 +108,7 @@ def on_login(data):
             is not None):
         print("The user exists")
     else:
-        new_user = models.Player(username=data["name"], points=100)
-        DB.session.add(new_user)
-        DB.session.commit()
-        print(models.Player.query.all())
+        print(add_user(data["name"]))
     if len(PLAYERS) < 2:
         PLAYERS.append({request.sid: data["name"]})
         VALID_IDS.append(request.sid)
@@ -156,7 +160,6 @@ def on_win(data):
 @SOCKETIO.on("leaderboard")
 def on_leaderboard():
     '''Returns a list of users and scores sorted from first to last'''
-    print(request.sid)
     leaderboard = models.Player.query.all()
     leaderboard = list(
         map(lambda person: [person.username, person.points], leaderboard))
