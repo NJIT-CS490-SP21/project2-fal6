@@ -157,14 +157,17 @@ def on_win(data):
     DB.session.commit()
 
 
-@SOCKETIO.on("leaderboard")
-def on_leaderboard():
-    '''Returns a list of users and scores sorted from first to last'''
+def leader_board():
     leaderboard = models.Player.query.all()
     leaderboard = list(
         map(lambda person: [person.username, person.points], leaderboard))
     leaderboard.sort(key=lambda leaderboard: leaderboard[1], reverse=True)
+    return leaderboard
 
+@SOCKETIO.on("leaderboard")
+def on_leaderboard():
+    '''Returns a list of users and scores sorted from first to last'''
+    leaderboard = leader_board()
     emit("leaderboard", {
         'leaderboard': leaderboard,
         'name': USERS[request.sid]

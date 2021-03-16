@@ -60,59 +60,57 @@ class TestAdd(unittest.TestCase):
                         expected_result = test[EXPECTED_OUTPUT]['users']
                         self.assertEqual(result, expected_result)
                         self.assertEqual(len(result),len(expected_result))
-'''            
-class TestReset(unittest.TestCase):
+          
+class TestLeader(unittest.TestCase):
     def setUp(self):
         self.sucess_test_params = [
             {
                 INPUT: {
-                    'board' : [[None, None, None] for i in range(3)],
+                    'name' : 'Me',
                 },
                 EXPECTED_OUTPUT: {
-                    'board': [[None, None, None] for i in range(3)],
-                    'turn': False,
-                    'win': False
+                    'users': ['Felix','Me'],
+                    'length': 2
                 }
             },
             {
                 INPUT: {
-                    'board':[
-                        ['X', None, None],
-                        [None, None, None],
-                        [None, None, None],
-                        ],
+                    'name' : 'Naman',
                 },
                 EXPECTED_OUTPUT: {
-                    'board': [[None, None, None] for i in range(3)],
-                    'turn': False,
-                    'win': False
+                    'users': ['Felix','Me','Naman'],
+                    'length': 1
                 }
             },
             {
                 INPUT: {
-                    'board' : [
-                        [None, None, None],
-                        [None,None,'X'],
-                        [None,None,'O'],
-                        ],
-                    
+                    'name' : 'Kristianna',
                 },
                 EXPECTED_OUTPUT: {
-                    'board': [[None, None, None] for i in range(3)],
-                    'turn': False,
-                    'win': False
+                    'users': ['Felix', 'Me','Naman','Kristianna'],
+                    'length': 3
                 }
             }
         ]
+        self.initial_person = models.Player(username=INITAL_USER,points = 100)
+        self.initial_db_mock = [self.initial_person]
+        
+    def mocked_add(self,user):
+        self.initial_db_mock.append(user)
+    def mocked_db_session_commit(self):
+        pass
+    def mocked_player_query_all(self):
+        return self.initial_db_mock
     def test_click_board(self):
         for test in self.sucess_test_params:
-            result = reset(test[INPUT]["board"])
-            expected_result = (test[EXPECTED_OUTPUT]['board'],
-                                test[EXPECTED_OUTPUT]['turn'],
-                                test[EXPECTED_OUTPUT]['win'])
-            self.assertEqual(result[0],expected_result[0])
-            self.assertEqual(result[1],expected_result[1])
-            self.assertEqual(result[2],expected_result[2])
-'''
+            with patch('app.DB.session.add',self.mocked_add):
+                with patch('app.DB.session.commit',self.mocked_db_session_commit):
+                    with patch('models.Player.query') as mocked_query:
+                        mocked_query.all = self.mocked_player_query_all
+                        result = add_user(test[INPUT]['name'])
+                        expected_result = test[EXPECTED_OUTPUT]['users']
+                        self.assertEqual(result, expected_result)
+                        self.assertEqual(len(result),len(expected_result))
+
 if __name__ == '__main__':
     unittest.main()
