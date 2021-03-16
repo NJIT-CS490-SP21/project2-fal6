@@ -59,8 +59,7 @@ class TestAdd(unittest.TestCase):
                         result = add_user(test[INPUT]['name'])
                         expected_result = test[EXPECTED_OUTPUT]['users']
                         self.assertEqual(result, expected_result)
-                        self.assertEqual(len(result),len(expected_result))
-          
+    
 class TestLeader(unittest.TestCase):
     def setUp(self):
         self.initial_person = models.Player(username=INITAL_USER,points = 101)
@@ -71,17 +70,17 @@ class TestLeader(unittest.TestCase):
                 EXPECTED_OUTPUT: self.initial_db_mock
             },
             {
-                EXPECTED_OUTPUT: sorted(self.initial_db_mock,key=lambda leaderboard: leaderboard[1], reverse=True)
+                EXPECTED_OUTPUT: [['Felix', 101], ['Naman', 99]]
             },
             {
-                EXPECTED_OUTPUT: sorted(self.initial_db_mock,key=lambda leaderboard: leaderboard[1], reverse=True)
+                EXPECTED_OUTPUT: [['Felix', 101], ['Naman', 99], ['Kristianna',99]]
             }
         ]
         
         
-    def add_user(self,user):
-        new_player = models.Player(username=INITAL_USER,points = 99)
-        self.intial_db_mock.append([new_player.username,new_player.points])
+    def mocked_add_user(self,user):
+        new_player = models.Player(username=user,points = 99)
+        self.initial_db_mock.append([new_player.username,new_player.points])
         self.initial_players_mock.append(new_player)
     def mocked_player_query_all(self):
         return self.initial_players_mock
@@ -91,10 +90,9 @@ class TestLeader(unittest.TestCase):
                 mocked_query.all = self.mocked_player_query_all
                 result = leader_board()
                 expected_result = test[EXPECTED_OUTPUT]
-                if count <=1:
-                    add_user(NAMES[count])
                 self.assertEqual(result, expected_result)
                 self.assertEqual(len(result),len(expected_result))
-
+                if count <=1:
+                    self.mocked_add_user(NAMES[count])
 if __name__ == '__main__':
     unittest.main()

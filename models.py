@@ -12,4 +12,3 @@ class Player(DB.Model):
 
     def __repr__(self):
         return '<Player %r>' % self.username
-
