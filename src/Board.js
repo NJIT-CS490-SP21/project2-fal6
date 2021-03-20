@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import './Board.css';
-import PropTypes from 'prop-types';
 import Box from './Boxes';
 import Spectator from './Spectator';
 import Reset from './Reset';
 import Leaderboard from './Leaderboard';
+import Room from './Room';
 
 function Board(props) {
   const [board, setBoard] = useState(Array(3).fill(Array(3).fill(null))); // Tic tac toe board
@@ -198,10 +198,8 @@ function Board(props) {
       <div className="board">{boxes}</div>
       <Spectator spectators={spectators} />
       <Leaderboard socket={socket} />
+      <Room socket={socket} />
     </div>
   );
 }
-Board.propTypes = {
-  socket: PropTypes.func.isRequired,
-};
 export default Board;

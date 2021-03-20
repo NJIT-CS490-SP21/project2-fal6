@@ -1,11 +1,12 @@
 import { React, useRef } from 'react';
 import './Login.css';
-import PropTypes from 'prop-types';
 
 function Login(props) {
   const { socket } = props;
   const ref = useRef(null);
-  function logIn(name) {
+  const roomRef = useRef(null);
+  function logIn(name, room) {
+    console.log(room);
     props.func(true);
     socket.emit('login', { name });
   }
@@ -13,12 +14,14 @@ function Login(props) {
     <div>
       <h1>Enter your username:</h1>
       <input type="text" ref={ref} />
-      <button type="button" onClick={() => logIn(ref.current.value)}>Log in</button>
+      <p />
+      <select ref={roomRef}>
+        <option value={1}>Room 1</option>
+        <option value={2}>Room 2</option>
+        <option value={3}>Room 3</option>
+      </select>
+      <button type="button" onClick={() => logIn(ref.current.value, roomRef.current.value)}>Log in</button>
     </div>
   );
 }
-Login.propTypes = {
-  socket: PropTypes.func.isRequired,
-  func: PropTypes.func.isRequired,
-};
 export default Login;

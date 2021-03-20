@@ -1,5 +1,4 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
 function Box(props) {
   const { val } = props;
@@ -12,9 +11,4 @@ function Box(props) {
   );
 }
 
-Box.propTypes = {
-  val: PropTypes.func.isRequired,
-  index: PropTypes.func.isRequired,
-  func: PropTypes.func.isRequired,
-};
 export default Box;

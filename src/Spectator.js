@@ -1,5 +1,4 @@
 import { React } from 'react';
-import PropTypes from 'prop-types';
 
 function Spectator(props) {
   const spectator = [];
@@ -15,7 +14,5 @@ function Spectator(props) {
     </div>
   );
 }
-Spectator.propTypes = {
-  spectators: PropTypes.func.isRequired,
-};
+
 export default Spectator;

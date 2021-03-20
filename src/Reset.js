@@ -1,5 +1,4 @@
 import { React } from 'react';
-import PropTypes from 'prop-types';
 
 function Reset(props) {
   const { socket } = props;
@@ -12,9 +11,5 @@ function Reset(props) {
     </div>
   );
 }
-Reset.propTypes = {
-  socket: PropTypes.func.isRequired,
-  valid: PropTypes.func.isRequired,
-};
 
 export default Reset;

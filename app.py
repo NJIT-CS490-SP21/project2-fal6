@@ -4,7 +4,7 @@ FlaskSQLAlchemy is used to mange user data
 '''
 import os
 from flask import Flask, send_from_directory, json, request
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
 from dotenv import load_dotenv, find_dotenv
@@ -173,8 +173,11 @@ def on_leaderboard():
         'leaderboard': leaderboard,
         'name': USERS[request.sid]
     })
-
-
+@SOCKETIO.on('join')
+def on_join():
+    '''Joins a room'''
+    join_room(1)
+    print(request.sid)
 # Note that we don't call APP.run anymore. We call socketio.run with APP arg
 if __name__ == "__main__":
     SOCKETIO.run(
